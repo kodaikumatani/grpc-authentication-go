@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 
-	"github.com/kodaikumatani/grpc-authentication-go/internal/app"
-	"github.com/kodaikumatani/grpc-authentication-go/internal/app/greeter"
+	"github.com/kodaikumatani/grpc-authentication-go/internal/interceptor"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -22,9 +22,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
-	handler := new(greeter.Handler)
-	s = app.NewRegistrar(handler).Register(s)
+	services, err := initializeServices(context.Background())
+	if err != nil {
+		log.Fatalf("failed to initialize services")
+	}
+	s := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			interceptor.AuthUnaryInterceptor(services.Verifier),
+		),
+	)
+	s = services.Register(s)
 	reflection.Register(s)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

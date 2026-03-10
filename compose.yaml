@@ -1,0 +1,14 @@
+services:
+  firebase:
+    build:
+      context: ./firebase
+    environment:
+      - PROJECT=my-project
+    volumes:
+      - ./firebase/firebase.json:/opt/firebase/firebase.json
+    ports:
+      - 4000:4000
+      - 9099:9099
+    working_dir: /opt/firebase
+    command: sh -c 'firebase emulators:start --project $$PROJECT'
+    tty: true
