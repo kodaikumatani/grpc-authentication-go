@@ -7,3 +7,5 @@ type Verifier interface {
 }
 
 type UIDKey struct{}
+
+type ClaimsKey struct{}

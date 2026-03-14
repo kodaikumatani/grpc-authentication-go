@@ -21,7 +21,7 @@ func AuthUnaryInterceptor(verifier authn.Verifier) grpc.UnaryServerInterceptor {
 		req any,
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
-	) (_ any, err error) {
+	) (any, error) {
 		tokenString, err := auth.AuthFromMD(ctx, "bearer")
 		if err != nil {
 			return nil, status.Error(codes.Unauthenticated, ErrInvalidAuthToken.Error())

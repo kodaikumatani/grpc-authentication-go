@@ -13,6 +13,7 @@ import (
 
 var (
 	ErrUserNotFound = errors.New("user not found")
+	ErrRoleNotFound = errors.New("role not found")
 )
 
 // handler is used to implement helloworld.GreeterServer.
@@ -32,5 +33,15 @@ func (s *handler) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloR
 		return nil, status.Error(codes.Unauthenticated, ErrUserNotFound.Error())
 	}
 
-	return &pb.HelloReply{Message: "Hello " + uid}, nil
+	claims, ok := ctx.Value(authn.ClaimsKey{}).(map[string]interface{})
+	if !ok {
+		return nil, status.Error(codes.PermissionDenied, ErrRoleNotFound.Error())
+	}
+
+	role, ok := claims["role"].(string)
+	if !ok {
+		return nil, status.Error(codes.PermissionDenied, ErrRoleNotFound.Error())
+	}
+
+	return &pb.HelloReply{Message: "UID: " + uid + " Role: " + role}, nil
 }

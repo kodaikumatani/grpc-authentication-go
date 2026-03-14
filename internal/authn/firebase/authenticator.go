@@ -33,5 +33,7 @@ func (c *verifier) VerifyIDToken(ctx context.Context, idToken string) (context.C
 		return nil, err
 	}
 
-	return context.WithValue(ctx, authn.UIDKey{}, token.UID), nil
+	ctx = context.WithValue(ctx, authn.UIDKey{}, token.UID)
+	ctx = context.WithValue(ctx, authn.ClaimsKey{}, token.Claims)
+	return ctx, nil
 }
